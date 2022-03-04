@@ -10,8 +10,9 @@ In this example, the formatted mask that we create will then be named 't4000_g4.
 
 
 The simple usage in the command line is 
-> python MakeLineMask.py
-
+```terminal
+python MakeLineMask.py
+```
 
 
 
