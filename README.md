@@ -15,6 +15,7 @@ We rename the orginal file from VALD to something in the format: t4000_g4.0_m0.0
   - 'g4.0' corresponds to a log g (cm/s^2) = 4.0, 
   - 'm0.0' corresponds to a metalicity M/H = 0.0, and 
   - 'vmic1' stands for a microturbulent velocity of 1 km/s.
+
 In this example, the formatted mask that we create will then be named 't4000_g4.0_m0.0_vmic1'.
 
 
