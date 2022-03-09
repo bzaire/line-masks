@@ -14,7 +14,7 @@ For the example VALD files in the **atomic_masks** folder we use:
  - Starting wavelength = 950 nm
  - Ending wavelength   = 2600 nm 
  - Detection threshold = 0.01
- - Microturbulence = 1 km/s (and a few cases with 1 or 2 km/s)
+ - Microturbulence = 1 km/s (and a few cases with 0 or 2 km/s)
  - Teff = [3250, 4250] K (in steps of 250 K)
  - log g = 4.0 or 5.0
  - Chemical composition = M/H: 0.0 (and a few cases with -0.5 or 0.5)
