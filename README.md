@@ -23,7 +23,8 @@ For the example VALD files in the **atomic_masks** folder we use:
  - Hyperfine structure = 'Include HFS splitting'
  - Require lines to have a known value of = 'Landé factor'
 ### Warning: 
-You can vary these parameters to create your personal mask, but for our routine to work you should always select the extraction format 'short format' and you should always ask for a know value of 'Landé factor' (which is needed to compute LSD profiles).
+You can vary these parameters to create your personal mask, but for our routine to work you should *always select the extraction format 'short format'* and *always ask for a know value of 'Landé factor'* (which is needed to compute LSD profiles).
+
 -----------------
 
 You can find some example line masks extracted from VALD in the folder **atomic_masks**. 
