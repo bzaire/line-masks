@@ -24,6 +24,7 @@ For the example VALD files in the **atomic_masks** folder we use:
  - Require lines to have a known value of = 'Landé factor'
 ### Warning: 
 You can vary these parameters to create your personal mask, but for our routine to work you should always select the extraction format 'short format' and you should always ask for a know value of 'Landé factor' (which is needed to compute LSD profiles).
+-----------------
 
 You can find some example line masks extracted from VALD in the folder **atomic_masks**. 
 We rename the orginal file from VALD to something in the format: t4000_g4.0_m0.0_vmic1_total. Here, 
