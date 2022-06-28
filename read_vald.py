@@ -9,14 +9,14 @@ def read_VALD_linelist(filename) :
     # Each absorption line contains the following information:                                        #
     #                                                                                                 #
     #                                                 Damping parameters   Lande  Central             #
-    #Spec Ion      WL_air(nm) Excit(eV) Vmic log gf*  Rad.   Stark  Waals  factor  depth  Reference   # 
+    #Spec Ion      WL_vac(nm) Excit(eV) Vmic log gf*  Rad.   Stark  Waals  factor  depth  Reference   # 
     ###################################################################################################
     
     loc = {}
     loc["filename"] = filename
     
     loc["species"], loc["ion"] = [], []
-    loc["wave_nm"] = []
+    loc["wave_nm_vacuum"], loc["wave_nm"] = [], []
     loc["excit_eV"] = []
     loc["vmic"] = []
     loc["loggf"] = []
@@ -34,7 +34,7 @@ def read_VALD_linelist(filename) :
             
             loc["species"].append(cols[0][1:-1].split()[0])
             loc["ion"].append(int(cols[0][1:-1].split()[1]))
-            loc["wave_nm"].append(float(cols[1]))
+            loc["wave_nm_vacuum"].append(float(cols[1]))
             loc["excit_eV"].append(float(cols[2]))
             loc["vmic"].append(float(cols[3]))
             loc["loggf"].append(float(cols[4]))
@@ -43,14 +43,12 @@ def read_VALD_linelist(filename) :
             loc["waals"].append(float(cols[7]))
             loc["lande"].append(float(cols[8]))
             loc["depth"].append(float(cols[9]))
-#            loc["ref"].append(cols[10])
-
             loc["species_code"].append(species_code(cols[0][1:-1].split()[0], int(cols[0][1:-1].split()[1])))
 
     loc["species"] = np.array(loc["species"])
     loc["ion"] = np.array(loc["ion"])
-    loc["wave_nm"] = np.array(loc["wave_nm"])
-    loc["wave_nm_vacuum"] = convert_air_to_vacuum_wl(loc["wave_nm"], air_density=1.0)
+    loc["wave_nm_vacuum"] = np.array(loc["wave_nm_vacuum"])
+    loc["wave_nm"] = convert_vacuum_to_air_wl(loc["wave_nm_vacuum"], air_density=1.0)
     loc["excit_eV"] = np.array(loc["excit_eV"])
     loc["vmic"] = np.array(loc["vmic"])
     loc["loggf"] = np.array(loc["loggf"])
@@ -66,7 +64,11 @@ def read_VALD_linelist(filename) :
 
 def species_code(species,ion):
     atomic_number = {'H':100, 'He':200,'Li':300, 'Be':400, 'B':500, 'C':600, 'N':700, 'O':800, 'F':900, 'Ne':1000, 'Na':1100, 'Mg':1200, 'Al':1300, 'Si':1400, 'P':1500, 'S':1600, 'Cl':1700, 'Ar':1800, 'K':1900, 'Ca':2000, 'Sc':2100, 'Ti':2200, 'V':2300, 'Cr':2400, 'Mn':2500, 'Fe':2600, 'Co':2700, 'Ni':2800, 'Cu':2900, 'Zn':3000, 'Ga':3100, 'Ge':3200, 'As':3300, 'Se':3400, 'Br':3500, 'Kr':3600, 'Rb':3700, 'Sr':3800, 'Y':3900, 'Zr':4000, 'Nb':4100, 'Mo':4200, 'Tc':4300, 'Ru':4400, 'Rh':4500, 'Pd':4600, 'Ag':4700, 'Cd':4800, 'In':4900, 'Sn':5000, 'Sb':5100, 'Te':5200, 'I':5300, 'Xe':5400, 'Cs':5500, 'Ba':5600, 'La':5700, 'Ce':5800, 'Pr':5900, 'Nd':6000, 'Pm':6100, 'Sm':6200, 'Eu':6300, 'Gd':6400, 'Tb':6500, 'Dy':6600, 'Ho':6700, 'Er':6800, 'Tm':6900, 'Yb':7000, 'Lu':7100, 'Hf':7200, 'Ta':7300, 'W':7400, 'Re':7500, 'Os':7600, 'Ir':7700, 'Pt':7800, 'Au':7900, 'Hg':8000, 'Tl':8100, 'Pb':8200, 'Bi':8300, 'Po':8400, 'At':8500, 'Rn':8600, 'Fr':8700, 'Ra':8800, 'Ac':8900, 'Th':9000, 'Pa':9100, 'U':9200, 'Np':9300, 'Pu':9400, 'Am':9500, 'Cm':9600, 'Bk':9700, 'Cf':9800, 'Es':9900, 'Fm':10000, 'Md':10100, 'No':10200, 'Lr':10300, 'Rf':10400, 'Db':10500, 'Sg':10600, 'Bh':10700, 'Hs':10800, 'Mt':10900, 'Ds ':11000, 'Rg ':11100, 'Cn ':11200, 'Nh':11300, 'Fl':11400, 'Mc':11500, 'Lv':11600, 'Ts':11700, 'Og':11800}
-    return float(int(atomic_number[species]) + ion - 1)/100.
+    try:
+       SC = float(int(atomic_number[species]) + ion - 1)/100.
+    except: #If molecules
+       SC = 100. 
+    return SC
 
 
 def nrefrac(wavelength, density=1.0):
@@ -96,7 +98,7 @@ def convert_air_to_vacuum_wl(air_wavelength, air_density=1.0) :
 
 
 
-def create_linemask(masks, extension, depth_min, rlt = False):
+def create_linemask(masks, extension, depth_min, rlt = False, JF = False):
     '''
     In this routine we assume that the input VALD file is named mask + extension
     
@@ -120,13 +122,28 @@ def create_linemask(masks, extension, depth_min, rlt = False):
             for idic in range(vald['ion'].shape[0]): 
                  if (vald['depth'][idic] > depth_min):
                      if rlt and (True in [(vald['wave_nm_vacuum'][idic] > wl) and (vald['wave_nm_vacuum'][idic] < wu) for  (wl,wu) in zip(wtl,wtu)]): 
-                         flag = 0 #don't use line
+                         if JF: 
+                             flag = 1 #don't use line (Jean-Francois notation)
+                         else:
+                             flag = 0 #don't use line
                          count1 += 1
                      elif vald['lande'][idic] <= 0.: #remove some lande numbers
-                         flag = 0 #don't use line
+                         if JF: 
+                             flag = 1 #don't use line (Jean-Francois notation)
+                         else:
+                             flag = 0 #don't use line
+                         count2 += 1
+                     elif vald['lande'][idic] == 99.00: #remove molecular lines with unknow lande factor
+                         if JF: 
+                             flag = 1 #don't use line (Jean-Francois notation)
+                         else:
+                             flag = 0 #don't use line
                          count2 += 1
                      else:
-                         flag = 1 #use line 
+                         if JF: 
+                             flag = 0 #use line (Jean-Francois notation)
+                         else:
+                             flag = 1 #use line
                      file.write("{0:.4f}  {1:.2f}  {2:.3f}  {3:.3f}  {4:.3f}  {5:d}\n".format(vald['wave_nm_vacuum'][idic], vald['species_code'][idic], vald['depth'][idic], vald['excit_eV'][idic], vald['lande'][idic], flag))
         
         
@@ -135,6 +152,6 @@ def create_linemask(masks, extension, depth_min, rlt = False):
         print('\n')
         print('There are %d lines with depth larger than %1.2f ' %(vald['wave_nm_vacuum'][vald['depth'] > depth_min].shape[0], depth_min) )
         print('and %d lines fall in the telluric water band and %d have a lande factor <= 0' %(count1, count2))
-        print('We consider thusa total of %d lines to compute LSD profiles' %(vald['wave_nm_vacuum'][vald['depth'] > depth_min].shape[0] - count1 - count2))
+        print('We consider thus a total of %d lines to compute LSD profiles' %(vald['wave_nm_vacuum'][vald['depth'] > depth_min].shape[0] - count1 - count2))
         print('--------')
     
