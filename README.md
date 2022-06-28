@@ -10,7 +10,11 @@ python MakeLineMask.py
 -----------------
 
 We start from an original VALD line list file (available at http://vald.astro.uu.se/) extracted using the 'Extract Stellar' mode. 
-For the example VALD files in the **atomic_masks** folder we use:
+Clic on "unit selection": 
+ - modify the wavelength unit to nm (default is Angstrom), and 
+ - ask VALD to give wavelenghts in the vaccuum (default is in the air).
+ 
+Next we should select the parameters of our mask. For the example VALD files in the **atomic_masks** folder we use:
  - Starting wavelength = 950 nm
  - Ending wavelength   = 2600 nm 
  - Detection threshold = 0.01
@@ -20,7 +24,6 @@ For the example VALD files in the **atomic_masks** folder we use:
  - Chemical composition = M/H: 0.0 (and a few cases with -0.5 or 0.5)
  - Extraction format = 'short format' 
  - Retrieve data via = ftp
- - Hyperfine structure = 'Include HFS splitting'
  - Require lines to have a known value of = 'Landé factor'
 ### Warning: 
 You can vary these parameters to create your personal mask, but for our routine to work you should *always select the extraction format 'short format'* and *always ask for a know value of 'Landé factor'* (which is needed to compute LSD profiles).
